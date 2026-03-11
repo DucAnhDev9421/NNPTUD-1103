@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 //localhost:3000/users
 app.use('/api/v1/users', require('./routes/users'));
+app.use('/api/v1/roles', require('./routes/roles'));
 app.use('/api/v1/products', require('./routes/products'))
 app.use('/api/v1/categories', require('./routes/categories'))
 
@@ -49,7 +50,14 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  if (req.originalUrl.startsWith('/api/')) {
+    res.json({
+      message: err.message,
+      error: req.app.get('env') === 'development' ? err : {}
+    });
+  } else {
+    res.render('error');
+  }
 });
 
 module.exports = app;
